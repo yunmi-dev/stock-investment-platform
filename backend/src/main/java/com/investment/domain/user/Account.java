@@ -23,28 +23,28 @@ public class Account {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // ① 1:1 관계 (User와)
+    // 1. 1:1 관계 (User와)
     @OneToOne(fetch = FetchType.LAZY)  // LAZY 로딩 (성능 최적화)
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 
-    // ② 잔고 (현금)
+    // 2. 잔고 (현금)
     @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal balance = new BigDecimal("1000000.00");  // 초기 자본 100만원
 
-    // ③ 총 자산 (현금 + 주식 가치)
+    // 3. 총 자산 (현금 + 주식 가치)
     @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal totalAssets = new BigDecimal("1000000.00");
 
-    // ④ 총 손익
+    // 4. 총 손익
     @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal totalProfitLoss = BigDecimal.ZERO;
 
-    // ⑤ 수익률 (%)
+    // 5. 수익률 (%)
     @Column(nullable = false, precision = 10, scale = 4)
     private BigDecimal profitLossRate = BigDecimal.ZERO;
 
-    // ⑥ 낙관적 락 (동시성 제어)
+    // 6. 낙관적 락 (동시성 제어)
     @Version
     private Long version;
 
@@ -57,13 +57,13 @@ public class Account {
         this.updatedAt = LocalDateTime.now();
     }
 
-    // ⑦ 잔고 변경 (매수/매도 시)
+    // 7. 잔고 변경 (매수/매도 시)
     public void updateBalance(BigDecimal amount) {
         this.balance = this.balance.add(amount);
         this.updatedAt = LocalDateTime.now();
     }
 
-    // ⑧ 총 자산 및 수익률 계산
+    // 8. 총 자산 및 수익률 계산
     public void updateAssets(BigDecimal totalAssets, BigDecimal stockValue) {
         this.totalAssets = totalAssets;
         this.totalProfitLoss = totalAssets.subtract(new BigDecimal("1000000.00"));

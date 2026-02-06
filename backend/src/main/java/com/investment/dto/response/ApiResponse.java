@@ -9,7 +9,7 @@ public class ApiResponse<T> {
     private T data;
     private String message;
 
-    public ApiResponse(boolean success, T data, String message) {
+    private ApiResponse(boolean success, T data, String message) {
         this.success = success;
         this.data = data;
         this.message = message;
@@ -25,5 +25,9 @@ public class ApiResponse<T> {
 
     public static <T> ApiResponse<T> error(String message) {
         return new ApiResponse<>(false, null, message);
+    }
+
+    public static <T> ApiResponse<T> error(T data, String message) {
+        return new ApiResponse<>(false, data, message);
     }
 }

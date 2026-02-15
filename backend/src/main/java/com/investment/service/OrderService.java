@@ -1,5 +1,6 @@
 package com.investment.service;
 
+import com.investment.aop.DistributedLock;
 import com.investment.domain.order.Order;
 import com.investment.domain.order.OrderType;
 import com.investment.domain.portfolio.Portfolio;
@@ -27,6 +28,7 @@ public class OrderService {
     private final PortfolioRepository portfolioRepository;
 
     @Transactional
+    @DistributedLock(key = "'ORDER:USER:' + #userId", waitTime = 5L, leaseTime = 3L)
     public OrderResponse createOrder(Long userId, OrderRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다"));

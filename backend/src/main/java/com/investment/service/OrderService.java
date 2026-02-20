@@ -11,6 +11,8 @@ import com.investment.dto.request.OrderRequest;
 import com.investment.dto.response.OrderResponse;
 import com.investment.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,6 +46,11 @@ public class OrderService {
         } else {
             return processSellOrder(user, stock, account, request);
         }
+    }
+
+    public Page<OrderResponse> getOrders(Long userId, Pageable pageable) {
+        return orderRepository.findByUserId(userId, pageable)
+                .map(OrderResponse::new);
     }
 
     private OrderResponse processBuyOrder(User user, Stock stock, Account account, OrderRequest request) {

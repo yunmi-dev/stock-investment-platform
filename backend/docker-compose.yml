@@ -1,15 +1,16 @@
 services:
-  postgres:
-    image: postgres:15
-    container_name: investment-postgres
+  mysql:
+    image: mysql:8.0
+    container_name: investment-mysql
     environment:
-      POSTGRES_DB: investment_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      MYSQL_DATABASE: investment_db
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_HOST: '%'
     ports:
-      - "5432:5432"
+      - "3306:3306"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - mysql_data:/var/lib/mysql
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
 
   redis:
     image: redis:7-alpine
@@ -18,4 +19,4 @@ services:
       - "6379:6379"
 
 volumes:
-  postgres_data:
+  mysql_data:

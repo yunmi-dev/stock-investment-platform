@@ -13,14 +13,20 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 /**
  * Spring Security 핵심 설정
  *
- * 주요 설정 3가지:
+ * 주요 설정:
  *   1. 세션 비활성화 → JWT는 서버가 상태를 안 가짐 (STATELESS)
- *   2. 엔드포인트별 접근 제어 → /api/auth/** 는 누구나, 나머지는 토큰 필요
- *   3. JwtAuthenticationFilter 등록 → 모든 요청마다 토큰 검증
+ *   2. CORS 허용 → React 개발 서버(3000) ↔ Spring(8080) 통신
+ *   3. 엔드포인트별 접근 제어 → /api/auth/** 는 누구나, 나머지는 토큰 필요
+ *   4. JwtAuthenticationFilter 등록 → 모든 요청마다 토큰 검증
  */
 @Configuration
 @EnableWebSecurity
@@ -35,6 +41,9 @@ public class SecurityConfig {
                 // JWT 사용 시 CSRF 불필요 (세션이 없으니까)
                 .csrf(csrf -> csrf.disable())
 
+                // CORS 설정 적용
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
                 // 세션 안 씀 - 요청마다 토큰으로 인증
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -47,10 +56,30 @@ public class SecurityConfig {
                 )
 
                 // UsernamePasswordAuthenticationFilter 앞에 JWT 필터 삽입
-                // → 비밀번호 검증 전에 토큰 먼저 확인
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    /**
+     * CORS 설정
+     * React 개발 서버(localhost:3000)에서 오는 요청 허용
+     * 배포 시 실제 도메인으로 변경 필요
+     */
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(List.of(
+                "http://localhost:3000"   // React 개발 서버
+        ));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true);
+        config.setMaxAge(3600L);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
     }
 
     /**
